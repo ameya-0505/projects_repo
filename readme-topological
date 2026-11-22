@@ -1,0 +1,56 @@
+# Topological Memory vs. Grid A\* Path Planning Benchmark
+
+An interactive `800 x 600` Pygame simulation and benchmark comparing two contrasting mobile robot navigation paradigms in a static obstacle arena[cite: 91]:
+- **`TopologicalMemory`** (Bio-inspired sparse graph using `NetworkX` with place-cell nodes, odometry edges, and line-of-sight loop-closure shortcuts)[cite: 91]
+- **`GridAStar`** (Discretized metric baseline over a `30 x 40` occupancy grid using `NumPy` and `heapq` with obstacle clearance inflation, 8-connected movement, and diagonal corner-cutting prevention)[cite: 91]
+
+Developed alongside the 12-week NPTEL certification course ***Introduction to Application of Artificial Intelligence to Robotics*** (IIT Roorkee, 20 July 2026 – 9 October 2026, 81% ELITE, Roll No: `NPTEL26CS18351061302900`)[cite: 91].
+
+## Key Features
+- **Interactive 2D Arena (`800 x 600` at 60 FPS):** Includes rectangular obstacles (`pygame.Rect`), boundary clamping, and axis-separated robot movement (`Robot.move`) for smooth sliding along walls without corner snagging[cite: 91].
+- **Bio-Inspired Topological Graph (`TopologicalMemory`):** Adds place-cell nodes when movement exceeds `step_threshold` (`45.0` px), connects odometry edges, and creates shortcut edges to earlier nodes within `connect_radius` (`80.0` px) when `segment_intersects_obstacles` confirms clear line-of-sight[cite: 91].
+- **Metric Occupancy Grid Baseline (`GridAStar`):** Discretizes the arena at `cell_size = 20` px (`30 x 40` = `1,200` cells), inflates obstacle footprints by `clearance` (`12` px = robot radius), guards against diagonal corner-cutting across blocked cells, and computes shortest paths using A\* with a Euclidean heuristic (`math.hypot`)[cite: 91].
+- **Real-Time Side-by-Side Benchmarking (`P` Key):** Runs both planners from the start state to the current robot node/position, logs path cost (`px`), CPU latency (`ms` via `time.perf_counter()`), graph size (`V`, `E`), and grid size (`total_cells`) to the console, and overlays both routes on screen (green for `TopologicalMemory`, orange for `GridAStar`)[cite: 91].
+
+## Project Structure
+```text
+.
+├── main.py            # Simulation arena, Robot, TopologicalMemory, GridAStar, and benchmark loop
+├── requirements.txt   # Python dependencies (pygame, numpy, networkx)
+└── README.md          # Project documentation
+```
+
+## Setup and Execution
+
+### 1. Prerequisites
+- Python 3.9+ on Windows, macOS, or Linux[cite: 91].
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+*(Or directly: `pip install pygame numpy networkx`)*[cite: 91]
+
+### 3. Run the Simulation
+```bash
+python main.py
+```
+
+## Controls
+| Key | Action |
+| :--- | :--- |
+| **Arrow Keys** (`Up`, `Down`, `Left`, `Right`) | Drive the robot (`BLUE` circle) through the arena and build `TopologicalMemory` (`RED` place-cell nodes, `GRAY` edges)[cite: 91] |
+| **`P`** | Run simultaneous `TopologicalMemory` and `GridAStar` path queries, print `[BENCHMARK]` metrics to the console, and draw the `GREEN` (topological) and `ORANGE` (Grid A\*) paths[cite: 91] |
+| **`ESC` / Close Window** | Exit the simulation[cite: 91] |
+
+## Default Parameters
+| Parameter | Default Value | Role |
+| :--- | :--- | :--- |
+| `step_threshold` | `45.0` px | Minimum Euclidean distance before creating a new topological place-cell node[cite: 91] |
+| `connect_radius` | `80.0` px | Maximum distance to add a line-of-sight loop-closure shortcut edge to an earlier node[cite: 91] |
+| `cell_size` | `20` px | Grid cell width/height for the `30 x 40` (`1,200`-cell) `GridAStar` occupancy map[cite: 91] |
+| `clearance` | `12` px | Obstacle inflation margin (matches `Robot.radius`)[cite: 91] |
+
+## Benchmark Trade-Off Overview
+- **`TopologicalMemory`:** Operates over a sparse graph (`O(V log V + E)` shortest-path lookup), typically yielding **lower search latency**, though path cost can be higher than a direct grid route when shortcuts or shorter node sequences are not yet present/selected[cite: 91].
+- **`GridAStar`:** Searches a denser discretized grid (`O(N log N)` over `1,200` cells), typically yielding **shorter, more direct obstacle-avoiding routes** at higher compute and memory cost[cite: 91].
